@@ -13,8 +13,8 @@ kernel_start:
     jmp .loop                   ; Loop so it doesnt crash
 
 message:
-    db "OK!",0 
+    db "Kernel Loaded!",0 
 
-%include "src/print.asm"
+%include "src/kernel/print.asm"
 
 times 512-($-$$) db 0
