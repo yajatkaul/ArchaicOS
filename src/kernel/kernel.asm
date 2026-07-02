@@ -1,20 +1,17 @@
-[org 0]                         ; When we jumped from bootloader into kernal the offset is 0 since its a different sector
-[bits 16]
+[org 0]                         ; When we jumped from bootloader into kernal the offset is 0 since its a different sector, this is just an offset not location
+[bits 32]
 
 kernel_start:
-    mov ax, cs                  ; Cant copy from one segment reg to another
-    mov ds, ax                  ; Make sure to update the ds with the cs so it gets the correct address for message, since we are in a differnt segment now from bootloader
+    mov edi, 0xB8000            ; EDI = VGA text mode video memory address
+                                ; Writing to 0xB8000 displays characters on the screen
 
-    mov ah, 0x0E                ; Good ol teletype interrupt this is the same we are still in the bios
-    mov si, message
-    call print_string
+    mov byte [edi], 'H'         ; Store 'H' in the first screen cell
+    mov byte [edi + 1], 0x07    ; Set the attribute byte for 'H', 0x07 = Light gray text on a black background
+
+    mov byte [edi + 2], 'i'
+    mov byte [edi + 3], 0x07
 
 .loop:
     jmp .loop                   ; Loop so it doesnt crash
-
-message:
-    db "Kernel Loaded!",0 
-
-%include "src/kernel/print.asm"
 
 times 512-($-$$) db 0

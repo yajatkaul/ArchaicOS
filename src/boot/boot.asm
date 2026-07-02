@@ -18,23 +18,14 @@ start:
     call load_kernel
 
     call enable_a20
-    call check_a20
 
-    cmp ax, 1                   ; When it returns from check_a20 if its 0 then it failed if its 1 then it succeded
-    je .a20_ok                  ; If it is 1 then jump to kernal
-
-    mov si, a20_failed_msg      ; If it failed then put failed msg in si
-    call print_string           
-    jmp $                       ; Loop so it doesnt crash
-
-    .a20_ok:
-        jmp 0x1000:0x0000
+    call enter_protected_mode
 
 hang:
     jmp hang                    ; Loop so it doesnt go below where there is no code which can crash
 
 message:
-    db "Loading kernel...", 0
+    db "Loading kernel...", 10, 13, 0
 
 boot_drive:
     db 0                        ; Stores the address of the boot drive (usb, ssd)
@@ -45,7 +36,8 @@ a20_failed_msg:
 %include "src/boot/print.asm"
 %include "src/boot/disk.asm"
 %include "src/boot/a20.asm"
-%include "src/boot/a20_check.asm"
+%include "src/boot/gdt.asm"
+%include "src/boot/protected_mode.asm"
 
 times 510-($-$$) db 0           ; Make it exactly 512 for boot sector to load
 dw 0xAA55                       ; Make sure it ends with 55 AA so it knows this sector is bootable

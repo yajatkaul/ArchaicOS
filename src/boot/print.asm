@@ -1,6 +1,6 @@
 print_string:
-    push ax                 ; Save AX
-    push si                 ; Save SI
+    push ax                     ; Save AX
+    push si                     ; Save SI
 
     .loop:
         mov al, [si]            ; Put value of si in al

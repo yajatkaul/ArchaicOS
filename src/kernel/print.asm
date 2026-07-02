@@ -1,4 +1,7 @@
 print_string:
+    push ax                     ; Save AX
+    push si                     ; Save SI
+
     .loop:
         mov al, [si]            ; Put value of si in al
 
@@ -12,4 +15,7 @@ print_string:
         jmp .loop               ; Loop again until the string ends(0)
 
     .done:
+        pop si                  ; Restore SI
+        pop ax                  ; Restore AX
+
         ret                     ; Once loop is finished return back

@@ -1,3 +1,4 @@
+; We call this to put that 512 bytes of kernal into the ram
 load_kernel:
     mov ax, 0x1000                  ; We want to put the kernal at this loc
     mov es, ax                      ; Put ax val in es since special regs dont accept immediate values (only reg to reg)

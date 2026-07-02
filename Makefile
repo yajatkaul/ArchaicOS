@@ -12,10 +12,12 @@ plainRun:
 
 run: build plainRun
 
-# can use commands like info registers to see all register info
 debug: build
 	qemu-system-x86_64 \
 	-drive format=raw,file=build/os.img \
+	-no-reboot -no-shutdown \
+	-d int,cpu_reset \
+	-D qemu.log \
 	-monitor stdio
 
 clean:
