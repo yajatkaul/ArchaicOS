@@ -3,7 +3,16 @@
 build:
 	@mkdir -p build
 	nasm -f bin ./src/boot/boot.asm -o ./build/boot.bin
-	nasm -f bin ./src/kernel/kernel.asm -o ./build/kernel.bin
+
+	nasm -f elf32 ./src/kernel/kernel.asm -o ./build/kernel.o
+	nasm -f elf32 src/kernel/vga.asm -o build/vga.o
+
+	ld -m elf_i386 \
+	-T src/kernel/linker.ld \
+	-o build/kernel.bin \
+	--oformat binary \
+	build/kernel.o \
+	build/vga.o
 
 	cat build/boot.bin build/kernel.bin > build/os.img
 
