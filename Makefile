@@ -5,11 +5,13 @@ build:
 	nasm -f bin ./src/boot/boot.asm -o ./build/boot.bin
 
 	nasm -f elf32 ./src/kernel/kernel.asm -o ./build/kernel.o
-	nasm -f elf32 src/kernel/vga.asm -o build/vga.o
 
-	nasm -f elf32 src/kernel/interrupt/idt.asm -o build/idt.o
-	nasm -f elf32 src/kernel/interrupt/divide_by_zero.asm -o build/divide_by_zero.o
-	nasm -f elf32 src/kernel/interrupt/iloader.asm -o build/iloader.o
+	nasm -f elf32 src/kernel/drivers/vga.asm -o build/vga.o
+
+	nasm -f elf32 src/kernel/arch/x86/idt/idt.asm -o build/idt.o
+	nasm -f elf32 src/kernel/arch/x86/idt/iloader.asm -o build/iloader.o
+	
+	nasm -f elf32 src/kernel/arch/x86/idt/interrupts/divide_by_zero.asm -o build/divide_by_zero.o
 
 	ld -m elf_i386 \
 	-T src/kernel/linker.ld \
