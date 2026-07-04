@@ -1,5 +1,6 @@
 global print_char
 global print_string
+global clear_screen
 
 ; VGA Text Mode Constants
 VGA_MEMORY equ 0xB8000          ; VGA text mode video memory address 
@@ -10,6 +11,7 @@ ASCII_NEWLINE equ 10
 
 ; Default text attribute (like color)
 VGA_COLOR  equ 0x07
+BLANK_SPACE equ 0x0720          ; 0x20 = ' ', 0x07 = White on Black
 
 section .data
 
@@ -83,61 +85,60 @@ print_string:
         ret                         ; Once loop is finished return back
 
 scroll_screen:
-    push eax
+    push eax                        ; Save
     push ecx
     push esi
     push edi
 
-    ; Row 1 starts 160 bytes after Row 0
-    mov esi, VGA_MEMORY + (VGA_WIDTH * 2)
+    cld                             ; Clear Direction flag, tells that it needs 
+                                    ; to move forward in mem during loops
+    
+    ; Moving each row
+    mov esi, VGA_MEMORY + (VGA_WIDTH * 2)   ; Row 1 starts 160 bytes after Row 0
 
-    ; Row 0 starts at VGA memory
-    mov edi, VGA_MEMORY
+    mov edi, VGA_MEMORY                     ; Row 0 starts at VGA memory
 
-    ; Copy 24 rows (3840 bytes / 4 = 960 dwords)
-    mov ecx, ((VGA_HEIGHT - 1) * VGA_WIDTH * 2) / 4
+    mov ecx, ((VGA_HEIGHT - 1) * VGA_WIDTH * 2) / 4 ; Copy 24 rows (3840 bytes / 4 = 960 dwords)
 
-    .copy:
-        ; Copy 4 bytes (2 character cells)
-        mov eax, [esi]
-        mov [edi], eax
+    rep movsd                       ; Repeat until ECX is 0, works on ESI and EDI (source, dest)
+                                    ; movs(d), dword meaning moves 4 bytes every loop
 
-        ; Move to the next 4 bytes
-        add esi, 4
-        add edi, 4
+    ; Clearing last row
+    mov edi, VGA_MEMORY + ((VGA_HEIGHT - 1) * VGA_WIDTH * 2)        ; Load last line memory
 
-        ; One less copy remaining
-        dec ecx
-        jnz .copy                   ; If not zero
+    mov ax, BLANK_SPACE                                             ; Put blank space in reg ax
 
-        ; Clear the last row
-        ; Point EDI at the first character of row 24
-        mov edi, VGA_MEMORY + ((VGA_HEIGHT - 1) * VGA_WIDTH * 2)
+    mov ecx, VGA_WIDTH                                              ; 80 character cells to clear
 
-        ; AX contains one blank VGA cell
-        ; 0x20 = ' '
-        ; 0x07 = White on Black
-        mov ax, 0x0720
+    rep stosw                               ; Repeat until ECX is 0, this does AX to EDI (ax to dest)
+                                            ; stos(w), word meaning moves 2 bytes every loop
 
-        ; 80 character cells to clear
-        mov ecx, VGA_WIDTH
+    mov dword [cursor_y], VGA_HEIGHT - 1    ; Cursor should stay on the final row
 
-    .clear:
-        ; Write one blank character + colour
-        mov [edi], ax
+    pop edi
+    pop esi
+    pop ecx
+    pop eax                         ; Restore
+    ret
 
-        ; Next character cell (2 bytes)
-        add edi, 2
+clear_screen:
+    push eax                        ; Save
+    push ecx
+    push edi
 
-        ; Continue until all 80 cells are cleared
-        dec ecx
-        jnz .clear
+    cld                             ; Clear Direction flag, tells that it needs 
+                                    ; to move forward in mem during loops
+    
+    mov ax, BLANK_SPACE             ; Source is blank space
 
-        ; Cursor should stay on the final row
-        mov dword [cursor_y], VGA_HEIGHT - 1
+    mov edi, VGA_MEMORY             ; Row 0 starts at VGA memory
 
-        pop edi
-        pop esi
-        pop ecx
-        pop eax
-        ret
+    mov ecx, VGA_HEIGHT * VGA_WIDTH ; Copy 25 rows (25 x 80 = 2000 characters)
+
+    rep stosw                       ; Repeat until ECX is 0, this does AX to EDI (ax to dest)
+                                    ; movs(w), word meaning moves 2 bytes every loop
+
+    pop edi
+    pop ecx
+    pop eax                         ; Restore
+    ret
