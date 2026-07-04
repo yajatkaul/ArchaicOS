@@ -36,7 +36,6 @@ a20_failed_msg:
 %include "src/boot/print.asm"
 %include "src/boot/disk.asm"
 %include "src/boot/a20.asm"
-%include "src/boot/gdt.asm"
 %include "src/boot/protected_mode.asm"
 
 times 510-($-$$) db 0           ; Make it exactly 512 for boot sector to load

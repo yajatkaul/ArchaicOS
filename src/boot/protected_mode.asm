@@ -3,7 +3,6 @@ enter_protected_mode:
     ; Tell the CPU where the GDT is
     lgdt [gdt_descriptor]
 
-
     ; Copies all the settings from CR0 to EAX 
     ; EAX since CR is a 32 bit reg
     mov eax, cr0
@@ -40,3 +39,5 @@ protected_mode:
 
     mov eax, 0x10000
     jmp eax
+
+%include "src/boot/gdt.asm"

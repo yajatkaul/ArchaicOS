@@ -1,3 +1,5 @@
+[bits 32]
+
 global print_char
 global print_string
 global clear_screen

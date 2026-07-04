@@ -7,12 +7,19 @@ build:
 	nasm -f elf32 ./src/kernel/kernel.asm -o ./build/kernel.o
 	nasm -f elf32 src/kernel/vga.asm -o build/vga.o
 
+	nasm -f elf32 src/kernel/interrupt/idt.asm -o build/idt.o
+	nasm -f elf32 src/kernel/interrupt/divide_by_zero.asm -o build/divide_by_zero.o
+	nasm -f elf32 src/kernel/interrupt/iloader.asm -o build/iloader.o
+
 	ld -m elf_i386 \
 	-T src/kernel/linker.ld \
 	-o build/kernel.bin \
 	--oformat binary \
 	build/kernel.o \
-	build/vga.o
+	build/vga.o \
+	build/idt.o \
+	build/divide_by_zero.o \
+	build/iloader.o
 
 	cat build/boot.bin build/kernel.bin > build/os.img
 

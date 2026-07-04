@@ -1,16 +1,27 @@
 [bits 32]
 
 global kernel_start
+
 extern print_string
 extern clear_screen
+
+extern load_int
 
 section .text
 
 kernel_start:
     mov esi, msg
 
+    call load_int
+
     call clear_screen
     call print_string
+
+    mov eax, 100
+    xor ebx, ebx
+
+    div ebx
+
 
 .loop:
     jmp .loop                   ; Loop so it doesnt crash
