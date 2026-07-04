@@ -6,7 +6,8 @@ load_kernel:
     mov bx, 0                       ; Address for bx, physical address is es:bx
 
     mov ah, 0x02                    ; Function you are calling 0x02 that is read sector in this case
-    mov al, 0x01                    ; This tells how many sectors we want to read here it is just 1
+    ; TODO this is supposed to be dynamic
+    mov al, 0x02                    ; This tells how many sectors we want to read here it is just 2
 
     ; Older BIOS used CHS(Cylinder, Head, Sector)
     ; A cylinder is a set of tracks at the same radius across all platters.

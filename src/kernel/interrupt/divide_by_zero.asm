@@ -8,12 +8,18 @@ extern print_string
 section .text
 
 divide_by_zero_handler:
-    pushad
+    pushad                          ; Save all regs during interrupt
 
     mov esi, msg
     call print_string
-    .hang:
-        jmp .hang
+
+    popad                           ; Restore all regs during interrupt
+
+    cli                             ; Disables further maskable interrupts
+
+    .halt:
+        hlt
+        jmp .halt
 
 load_divide_by_zero:
     mov eax, 0                      ; Interrupt Vector 0
@@ -28,4 +34,4 @@ load_divide_by_zero:
 section .rodata                 ; Read only
 
 msg:
-    db "Divide By Zero!", 0
+    db "Divide By Zero!", 10, 0

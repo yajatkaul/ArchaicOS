@@ -84,6 +84,7 @@ print_string:
         jmp .loop                   ; Loop again until the string ends(0)
 
     .done:
+        call update_cursor
         ret                         ; Once loop is finished return back
 
 scroll_screen:
@@ -143,4 +144,42 @@ clear_screen:
     pop edi
     pop ecx
     pop eax                         ; Restore
+    ret
+
+update_cursor:
+    push eax
+    push ebx
+    push edx
+
+    ; Calculate cursor position, pos = y * 80 + x, 2000 cells
+    mov eax, [cursor_y]
+    imul eax, VGA_WIDTH
+    add eax, [cursor_x]
+
+    ; eax -> ax (16-bit)
+    mov bx, ax                  ; Save the 16-bit position, value is not more that 2000
+
+    ; Send high byte, Here we select
+    mov dx, 0x3D4               ; VGA Index register
+    mov al, 14                  ; 14 stores upper 8 bits of cursor pos
+    out dx, al                  ; Sends 14 to port 0x3D4
+
+    ; Write upper 8 bits, Here we write
+    mov dx, 0x3D5               ; Wtv is written here goes into reg we select  
+    mov al, bh                  ; BX = BH | BL
+    out dx, al                  ; Puts value into reg 14
+
+    ; Send low byte, Here we select
+    mov dx, 0x3D4
+    mov al, 15                  ; 15 stores lower 8 bits of cursor pos
+    out dx, al                  ; Sends 15 to port 0x3D4
+
+    ; Write lower 8 bits, Here we write
+    mov dx, 0x3D5
+    mov al, bl
+    out dx, al                  ; Puts value into reg 15
+
+    pop edx
+    pop ebx
+    pop eax
     ret

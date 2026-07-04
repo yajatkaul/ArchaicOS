@@ -12,10 +12,10 @@ section .text
 kernel_start:
     mov esi, msg
 
-    call load_int
-
     call clear_screen
     call print_string
+
+    call load_int
 
     mov eax, 100
     xor ebx, ebx
@@ -53,6 +53,6 @@ msg:
     db "Line 22", 10
     db "Line 23", 10
     db "Line 24", 10
-    db "Line 25", 0
+    db "Line 25", 10
 
 times 512-($-$$) db 0
