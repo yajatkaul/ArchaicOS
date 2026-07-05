@@ -17,11 +17,16 @@ kernel_start:
 
     call load_int
 
-    mov eax, 100
-    xor ebx, ebx
+    ; Div by 0
+    ; mov eax, 100
+    ; xor ebx, ebx
+    ; div ebx
 
-    div ebx
+    ; Invalid OP Code
+    ; ud2
 
+    ; Page fault
+    ; mov eax, [0xFFFFFFFF]
 
 .loop:
     jmp .loop                   ; Loop so it doesnt crash
