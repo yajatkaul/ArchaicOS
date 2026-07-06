@@ -16,13 +16,17 @@ build/pit/pit.o \
 build/irq/stubs.o \
 build/irq/common_irq.o \
 build/irq/irq_loader.o \
+build/irq/keyboard.o \
+build/debug/print_hex_byte.o \
 build/irq/timer.o
 
 build:
-	@mkdir -p build build/idt build/pic build/pit build/irq
+	@mkdir -p build build/idt build/pic build/pit build/irq build/debug
 	nasm -f bin ./src/boot/boot.asm -o ./build/boot.bin
 
 	nasm -f elf32 ./src/kernel/kernel.asm -o ./build/kernel.o
+
+	nasm -f elf32 ./src/kernel/debug/print_hex_byte.asm -o ./build/debug/print_hex_byte.o
 
 	nasm -f elf32 src/kernel/drivers/vga.asm -o build/vga.o
 
@@ -43,6 +47,7 @@ build:
 	nasm -f elf32 src/kernel/arch/x86/irq/irq_loader.asm -o build/irq/irq_loader.o
 
 	nasm -f elf32 src/kernel/arch/x86/irq/handlers/timer.asm -o build/irq/timer.o
+	nasm -f elf32 src/kernel/arch/x86/irq/handlers/keyboard.asm -o build/irq/keyboard.o
 
 	ld -m elf_i386 \
 		-T src/kernel/linker.ld \

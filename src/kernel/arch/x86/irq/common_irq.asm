@@ -1,6 +1,7 @@
 global common_irq
 
 extern timer_handler
+extern keyboard_handler
 
 section .text
 
@@ -25,3 +26,4 @@ common_irq:
 
 irq_table:
     dd timer_handler
+    dd keyboard_handler
