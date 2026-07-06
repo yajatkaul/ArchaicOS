@@ -30,17 +30,17 @@ section .data
 
 exception_table:
     dd divide_by_zero       ; 0-4 bytes, 4 Bytes = 32 BITS
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-    dd invalid_opcode
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-    dd 0
-    dd general_protection
-    dd page_fault
+    dd 0                    ; 1
+    dd 0                    ; 2
+    dd 0                    ; 3
+    dd 0                    ; 4
+    dd 0                    ; 5
+    dd invalid_opcode       ; 6
+    dd 0                    ; 7
+    dd 0                    ; 8
+    dd 0                    ; 9
+    dd 0                    ; 10
+    dd 0                    ; 11
+    dd 0                    ; 12
+    dd general_protection   ; 13
+    dd page_fault           ; 14

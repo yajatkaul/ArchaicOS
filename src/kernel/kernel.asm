@@ -6,6 +6,8 @@ extern print_string
 extern clear_screen
 
 extern load_int
+extern pic_remap
+extern pit_init
 
 section .text
 
@@ -16,6 +18,10 @@ kernel_start:
     call print_string
 
     call load_int
+    call pic_remap
+    call pit_init
+
+    sti                         ; Enable hardware interrupts again now
 
     ; Div by 0
     ; mov eax, 100
@@ -58,6 +64,6 @@ msg:
     db "Line 22", 10
     db "Line 23", 10
     db "Line 24", 10
-    db "Line 25", 10
+    db "Line 25", 0
 
 times 512-($-$$) db 0
