@@ -1,7 +1,7 @@
 global common_irq
 
-extern timer_handler
-extern keyboard_handler
+extern timer_call
+extern keyboard_call
 
 section .text
 
@@ -25,5 +25,5 @@ common_irq:
     iret
 
 irq_table:
-    dd timer_handler
-    dd keyboard_handler
+    dd timer_call
+    dd keyboard_call

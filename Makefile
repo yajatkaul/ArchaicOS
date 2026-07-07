@@ -2,7 +2,7 @@
 
 OBJS = \
 build/kernel.o \
-build/vga.o \
+build/drivers/vga.o \
 build/idt/idt.o \
 build/idt/iloader.o \
 build/idt/stubs.o \
@@ -18,17 +18,28 @@ build/irq/common_irq.o \
 build/irq/irq_loader.o \
 build/irq/keyboard.o \
 build/debug/print_hex_byte.o \
+build/drivers/keyboard/keyboard.o \
+build/drivers/keyboard/buffer.o \
+build/drivers/keyboard/keyboard_update_modifiers.o \
+build/drivers/keyboard/keymap.o \
+build/drivers/keyboard/translate.o \
 build/irq/timer.o
 
 build:
-	@mkdir -p build build/idt build/pic build/pit build/irq build/debug
+	@mkdir -p build build/idt build/pic build/pit build/irq build/debug build/drivers/keyboard
 	nasm -f bin ./src/boot/boot.asm -o ./build/boot.bin
 
 	nasm -f elf32 ./src/kernel/kernel.asm -o ./build/kernel.o
 
 	nasm -f elf32 ./src/kernel/debug/print_hex_byte.asm -o ./build/debug/print_hex_byte.o
 
-	nasm -f elf32 src/kernel/drivers/vga.asm -o build/vga.o
+	nasm -f elf32 src/kernel/drivers/vga.asm -o build/drivers/vga.o
+
+	nasm -f elf32 src/kernel/drivers/keyboard/keyboard.asm -o build/drivers/keyboard/keyboard.o
+	nasm -f elf32 src/kernel/drivers/keyboard/buffer.asm -o build/drivers/keyboard/buffer.o
+	nasm -f elf32 src/kernel/drivers/keyboard/keyboard_update_modifiers.asm -o build/drivers/keyboard/keyboard_update_modifiers.o
+	nasm -f elf32 src/kernel/drivers/keyboard/keymap.asm -o build/drivers/keyboard/keymap.o
+	nasm -f elf32 src/kernel/drivers/keyboard/translate.asm -o build/drivers/keyboard/translate.o
 
 	nasm -f elf32 src/kernel/arch/x86/idt/idt.asm -o build/idt/idt.o
 	nasm -f elf32 src/kernel/arch/x86/idt/iloader.asm -o build/idt/iloader.o
@@ -46,8 +57,8 @@ build:
 	nasm -f elf32 src/kernel/arch/x86/irq/common_irq.asm -o build/irq/common_irq.o
 	nasm -f elf32 src/kernel/arch/x86/irq/irq_loader.asm -o build/irq/irq_loader.o
 
-	nasm -f elf32 src/kernel/arch/x86/irq/handlers/timer.asm -o build/irq/timer.o
-	nasm -f elf32 src/kernel/arch/x86/irq/handlers/keyboard.asm -o build/irq/keyboard.o
+	nasm -f elf32 src/kernel/arch/x86/irq/calls/timer.asm -o build/irq/timer.o
+	nasm -f elf32 src/kernel/arch/x86/irq/calls/keyboard.asm -o build/irq/keyboard.o
 
 	ld -m elf_i386 \
 		-T src/kernel/linker.ld \

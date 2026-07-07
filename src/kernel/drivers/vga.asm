@@ -64,6 +64,8 @@ print_char:
 
     .continue:
 
+    call update_cursor
+
     pop edi
     pop edx
     pop eax                     ; Restore all flags
@@ -84,7 +86,6 @@ print_string:
         jmp .loop                   ; Loop again until the string ends(0)
 
     .done:
-        call update_cursor
         ret                         ; Once loop is finished return back
 
 scroll_screen:
