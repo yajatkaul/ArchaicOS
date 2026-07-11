@@ -15,12 +15,12 @@ common_irq:
 
     call ebx
 
+    mov al, 0x20                        ; Master PIC's Command Port
+    out 0x20, al                        ; End Of Interrupt, tells that the interrupt has finsihed to the PIC
+
     popad
 
     add esp, 4                          ; 4 not 8 because IRQ's dont send things like error code like CPU Ints
-
-    mov al, 0x20                        ; Master PIC's Command Port
-    out 0x20, al                        ; End Of Interrupt, tells that the interrupt has finsihed to the PIC
 
     iret
 

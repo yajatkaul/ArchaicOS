@@ -14,6 +14,7 @@ extern backspace_char
 extern print_string
 extern clear_screen
 extern newline
+extern print_hex_byte
 
 section .rodata
 
@@ -37,7 +38,7 @@ terminal_update:
     cmp al, 8                   ; If backspace pressed
     je .backspace
 
-    cmp al, 13                  ; If enter pressed
+    cmp al, 10                  ; If enter pressed
     je .enter
 
     call terminal_handle_char
