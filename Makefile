@@ -66,7 +66,7 @@ build:
 	nasm -f elf32 src/kernel/terminal/terminal_buffer.asm -o build/terminal/terminal_buffer.o
 
 	ld -m elf_i386 \
-		-T src/kernel/linker.ld \
+		-T src/linker.ld \
 		-o build/kernel.bin \
 		--oformat binary \
 		$(OBJS)
