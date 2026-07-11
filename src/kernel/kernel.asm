@@ -9,6 +9,9 @@ extern load_int
 extern pic_remap
 extern pit_init
 
+extern terminal_init
+extern terminal_update
+
 section .text
 
 kernel_start:
@@ -34,8 +37,11 @@ kernel_start:
     ; Page fault
     ; mov eax, [0xFFFFFFFF]
 
-.loop:
-    jmp .loop                   ; Loop so it doesnt crash
+    call terminal_init
+
+    .loop:
+        call terminal_update
+        jmp .loop
 
 section .rodata                 ; Read only
 

@@ -65,12 +65,10 @@ keyboard_get_char:
 
     mov [keyboard_tail], ebx
 
-    mov ah, 1                               ; Success flag
-    jmp .done
+    pop ebx
+    ret
 
     .empty:
-        mov ah, 0                           ; Failed flag
-
-    .done:
+        xor al, al                          ; Returns 0 incase invalid/empty
         pop ebx
         ret

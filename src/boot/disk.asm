@@ -7,7 +7,7 @@ load_kernel:
 
     mov ah, 0x02                    ; Function you are calling 0x02 that is read sector in this case
     ; TODO this is supposed to be dynamic
-    mov al, 0x04                    ; This tells how many sectors we want to read here it is just 4
+    mov al, 0x05                    ; This tells how many sectors we want to read here it is just 5
 
     ; Older BIOS used CHS(Cylinder, Head, Sector)
     ; A cylinder is a set of tracks at the same radius across all platters.

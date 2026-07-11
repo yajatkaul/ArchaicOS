@@ -4,8 +4,6 @@ extern keyboard_update_modifiers
 extern keyboard_translate
 extern keyboard_push
 
-extern print_char
-
 section .text
 
 keyboard_handler:

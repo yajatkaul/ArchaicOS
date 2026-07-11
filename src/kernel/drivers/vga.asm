@@ -1,8 +1,10 @@
 [bits 32]
 
 global print_char
+global backspace_char
 global print_string
 global clear_screen
+global newline
 
 ; VGA Text Mode Constants
 VGA_MEMORY equ 0xB8000          ; VGA text mode video memory address 
@@ -10,6 +12,7 @@ VGA_WIDTH  equ 80               ; Each row has 80 chars
 VGA_HEIGHT equ 25               ; 25 is the number of rows on a standard VGA text-mode screen
 
 ASCII_NEWLINE equ 10
+ASCII_BACKSPACE equ 8
 
 ; Default text attribute (like color)
 VGA_COLOR  equ 0x07
@@ -27,50 +30,87 @@ cursor_y:
 section .text
 
 print_char:
-    push eax                    ; Save all regs
+    push eax
     push edx
     push edi
 
-    mov dl, al                  ; We will perform operations on eax so we put data in bl to be safe
+    mov dl, al                      ; Preserve the character while EAX is used for calculations.
 
-    cmp dl, ASCII_NEWLINE       ; If the char is of ASCII new line then check
-    je .next_line               ; If its new line perform next line
+    cmp dl, ASCII_NEWLINE           ; Check if char is newline
+    jne .normal_char                ; If not then continue normal
 
-    mov eax, [cursor_y]         ; Put cursor_y val in EAX
+    call newline                    ; Else call new line
+    jmp .done                       ; Return
 
-    imul eax, VGA_WIDTH         ; Signed multiple 80 * EAX
-    add eax, [cursor_x]         ; Add val of cursor_x into EAX
-    shl eax, 1                  ; Left shift EAX once, each left shift = x2
+    .normal_char:
+        ; Calculate VGA address
+        mov eax, [cursor_y]
+        imul eax, VGA_WIDTH
+        add eax, [cursor_x]
+        shl eax, 1
 
-    lea edi, [eax + VGA_MEMORY] ; Put EAX + vga_mem value into eax
-    
-    mov [edi], dl                       ; Char to print
-    mov byte [edi + 1], VGA_COLOR       ; Cell attribute (like color)
+        lea edi, [VGA_MEMORY + eax]
 
-    inc dword [cursor_x]                ; Move x axis by 1
+        ; Write character and attribute
+        mov byte [edi], dl
+        mov byte [edi + 1], VGA_COLOR
 
-    cmp dword [cursor_x], VGA_WIDTH     ; If it has reached 80 (limit) check
-    jl .continue                        ; If its less than 80 then continue
+        inc dword [cursor_x]        ; Advance cursor
 
-    .next_line:
-        mov dword [cursor_x], 0         ; Once line changes x axis is 0
-        inc dword [cursor_y]            ; Y axis is increased by 1
+        ; Wrap to next line if needed
+        cmp dword [cursor_x], VGA_WIDTH
+        jl .update_cursor
 
-    cmp dword [cursor_y], VGA_HEIGHT
-    jl .continue
+        call newline
+        jmp .done
 
-    call scroll_screen
-    mov dword [cursor_y], VGA_HEIGHT - 1
+    .update_cursor:
+        call update_cursor
 
-    .continue:
+    .done:
+        pop edi
+        pop edx
+        pop eax
+        ret
 
-    call update_cursor
+backspace_char:
+    push eax
+    push edi
 
-    pop edi
-    pop edx
-    pop eax                     ; Restore all flags
+    ; If at the very beginning of cur_x
+    cmp dword [cursor_x], 0
+    jne .same_line
 
-    ret
+    ; If at the very beginning of cur_y return
+    cmp dword [cursor_y], 0
+    je .done
+
+    ; Move to previous line
+    dec dword [cursor_y]
+    mov dword [cursor_x], VGA_WIDTH - 1
+    jmp .erase
+
+    .same_line:
+        dec dword [cursor_x]                ; Decrement cur_x value
+
+    .erase:
+        ; Calculate VGA address
+        mov eax, [cursor_y]
+        imul eax, VGA_WIDTH
+        add eax, [cursor_x]
+        shl eax, 1                          ; Left shift EAX once, each left shift = x2 since each cell has 2 parts char + formatting
+
+        lea edi, [VGA_MEMORY + eax]         ; Put EAX + VGA_MEM value into eax
+
+        ; Replace character with space
+        mov word [edi], BLANK_SPACE
+
+        call update_cursor
+
+    .done:
+        pop edi
+        pop eax
+        ret
 
 print_string:
     .loop:
@@ -142,6 +182,11 @@ clear_screen:
     rep stosw                       ; Repeat until ECX is 0, this does AX to EDI (ax to dest)
                                     ; movs(w), word meaning moves 2 bytes every loop
 
+    ; Reset positions
+    mov dword [cursor_x], 0
+    mov dword [cursor_y], 0
+    call update_cursor
+
     pop edi
     pop ecx
     pop eax                         ; Restore
@@ -184,3 +229,21 @@ update_cursor:
     pop ebx
     pop eax
     ret
+
+newline:
+    push eax
+
+    mov dword [cursor_x], 0     ; cur_x becomes 0
+    inc dword [cursor_y]        ; Increment cur_y
+
+    cmp dword [cursor_y], VGA_HEIGHT    ; If height less than limit then update
+    jl .update
+
+    call scroll_screen                      ; If height reached then scroll
+    mov dword [cursor_y], VGA_HEIGHT - 1    ; Update cur_y pos
+
+    .update:
+        call update_cursor
+
+        pop eax
+        ret

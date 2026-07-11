@@ -23,10 +23,12 @@ build/drivers/keyboard/buffer.o \
 build/drivers/keyboard/keyboard_update_modifiers.o \
 build/drivers/keyboard/keymap.o \
 build/drivers/keyboard/translate.o \
+build/terminal/terminal.o \
+build/terminal/terminal_buffer.o \
 build/irq/timer.o
 
 build:
-	@mkdir -p build build/idt build/pic build/pit build/irq build/debug build/drivers/keyboard
+	@mkdir -p build build/idt build/pic build/pit build/irq build/debug build/drivers/keyboard build/terminal
 	nasm -f bin ./src/boot/boot.asm -o ./build/boot.bin
 
 	nasm -f elf32 ./src/kernel/kernel.asm -o ./build/kernel.o
@@ -59,6 +61,9 @@ build:
 
 	nasm -f elf32 src/kernel/arch/x86/irq/calls/timer.asm -o build/irq/timer.o
 	nasm -f elf32 src/kernel/arch/x86/irq/calls/keyboard.asm -o build/irq/keyboard.o
+
+	nasm -f elf32 src/kernel/terminal/terminal.asm -o build/terminal/terminal.o
+	nasm -f elf32 src/kernel/terminal/terminal_buffer.asm -o build/terminal/terminal_buffer.o
 
 	ld -m elf_i386 \
 		-T src/kernel/linker.ld \

@@ -29,10 +29,10 @@ keyboard_update_modifiers:
 
     ret
 
-.shift_down:
-    mov byte [shift_pressed], 1
-    ret
+    .shift_down:
+        mov byte [shift_pressed], 1
+        ret
 
-.shift_up:
-    mov byte [shift_pressed], 0
-    ret
+    .shift_up:
+        mov byte [shift_pressed], 0
+        ret
